@@ -1,10 +1,10 @@
 This document is a start at describing how to incorporate interactive elements in EPUB3 at scale.  There are 3 major components in any system like this:
 
-* *A player*.  A player is any software program that can accept an input file and then render it.  For example, a flashcard player might accept an XM input file and then provide the functionality to move back and forth through the cards, display the answers, give hints, etc.
+* *A player*.  A player is any software program that can accept an input file and then render it.  For example, a flashcard player might accept an XML input file and then provide the functionality to move back and forth through the cards, display the answers, give hints, etc.
 * *A media file*.  A media file is data encoded into a format that can be played on a player. So, in a flash card system, the media file is an XML file.  In an audio file, it's an MP3 played on a quicktime plugin.
 * *An embed link*.  A syntax for embedding a player with a specific media file into a document.   For example, making an embed link on YouTube connects the player to the video you want to watch.
 
-We need to figure out how to replicate this in Atlas.  Specifically, we need to develop a process for:
+We need to figure out how to replicate this in Atlas and for EPUBs in general.  Specifically, we need to develop a process for:
 
 * Creating new players (flashcards, code magnets, multiple-choice quizzes, etc)   
 * Creating media files in a simple fashion inside Atlas.
@@ -15,7 +15,7 @@ This document describes a proof of concept for a flashcard player written in pro
 * We write various interactive players using processing.js
 * We use git submodules to include the players into the author's repo
 * The author can write the media files as simple XML input files
-* The author embeds the links to the player and media file inside the asciidoc source.  On the backend, we transform the embed link into the javasctio code necessary to "play" the file.
+* The author embeds the links to the player and media file inside the asciidoc source.  On the backend, we transform the embed link into the javascript  code necessary to "play" the file.
 
 I've developed this flashcard player as a proof of concept.  You can find the source code at:
 
@@ -37,7 +37,7 @@ Here's more info on each element.
 
 [NOTE]
 ====
-I relied on this article called [[ Processing on the Web | http://processingjs.nihongoresources.com/processing%20on%20the%20web/ ]] for a lot of this.  It's a bit outdated, but a great intro to the issues involved in passing data back and forth from a Javasctipt page to a processing.js sketch.  Highly recommended reading.
+I relied on this article called [ Processing on the Web | http://processingjs.nihongoresources.com/processing%20on%20the%20web/ ] for a lot of this.  It's a bit outdated, but a great intro to the issues involved in passing data back and forth from a Javasctipt page to a processing.js sketch.  Highly recommended reading.
 ====
 
 
