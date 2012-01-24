@@ -1,24 +1,79 @@
-* Interactive elements are processing sketches that can run as processing.js.  (The new beta of processing even let's you create these out of the box in the interface.  It's pretty slick.)  The sketch *must* have a standard method that loads an XML file that defines the elements various elements.  For example, if you had flashcards, you might have something like this:
+This document is a start at describing how to incorporate interactive elements in EPUB3 at scale.  There are 3 major components in any system like this:
 
+* *A player*.  A player is any software program that can accept an input file and then render it.  For example, a flashcard player might accept an XM input file and then provide the functionality to move back and forth through the cards, display the answers, give hints, etc.
+* *A media file*.  A media file is data encoded into a format that can be played on a player. So, in a flash card system, the media file is an XML file.  In an audio file, it's an MP3 played on a quicktime plugin.
+* *An embed link*.  A syntax for embedding a player with a specific media file into a document.   For example, making an embed link on YouTube connects the player to the video you want to watch.
+
+We need to figure out how to replicate this in Atlas.  Specifically, we need to develop a process for:
+
+* Creating new players (flashcards, code magnets, multiple-choice quizzes, etc)   
+* Creating media files in a simple fashion inside Atlas.
+* Create a simple linking system that will link the the two.  Basically, this means having a custom AsciiDoc link that will be transformed into the appropriate HTML / Javascript that can be embedded into the EPUB.
+
+This document describes a proof of concept for a flashcard player written in processing.js.  The basic idea is simple:
+
+* We write various interactive players using processing.js
+* We use git submodules to include the players into the author's repo
+* The author can write the media files as simple XML input files
+* The author embeds the links to the player and media file inside the asciidoc source.  On the backend, we transform the embed link into the javasctio code necessary to "play" the file.
+
+I've developed this flashcard player as a proof of concept.  You can find the source code at:
+
+https://github.com/MakerPress/flashcards
+
+To run the app:
+
+----
+$ git@github.com:MakerPress/flashcards.git
+$ cd flashcards
+$ python -m SimpleHTTPServer
+----
+
+The last command will start a simple HTTP server on port 8000.  Then, open your browser and go to http://localhost:8000/
+
+You can click around through the cards, see the answers, and so forth.
+
+Here's more info on each element.
+
+
+== The Player
+
+The player is a Processing sketch that uses the new "Export to processing.js" mode in version 2.0.  Processing / processing.js is attractive for several reasons:
+
+* Processing has a vibrant open source community and is backed by Google
+* There is a large community of people with Processing expertise
+* Processing.js cleanly converts to HTML5 / Javascript
+* We can use git submodules to pull the player into the author's repo.
+
+The downsides of this approach are:
+
+* There are some subtle differences b/t a full Processing sketch and processing.js.  It can be really hard to debug.
+* Processing 2.0 is still in beta, but it works.
+
+== The Media File
+
+The media file for the flashcard sketch is an XML document that looks like this (this file is called state_capitals.xml):
+
+----
 <flashcards>
-   <card>
-      <q>What is the capitol of Massachussetts</q>
-      <a>Boston</a>
-   </card>
-   <card>
-      <q>What is the capitol of New York</q>
-      <a>Albany</a>
-   </card>
+   <flashcard question = 'What is the capital of Massachusetts?' answer = 'Boston'/>
+   <flashcard question = 'What is the capital of New York?' answer = 'Albany'/>
+   <flashcard question = 'What is the capital of California?' answer = 'Sacramento'/>
 </flashcards>
+----
 
-The sketch is designed to "play" each of the XML files.
+Inside Atlas, the author can simply upload the file as an attachment, or edit it directly in the interface in some way.    
 
-* Each interactive sketch is pulled into an Atlas repo as a submodule.  If you want to use it, you have to do some git magic to link it in.  (Maybe this could be a picklist feature in the interface, even).
 
-* You create the XML config files inside the Atlas Interface.  These are just assets that you can upload or attach.
+== Embed Link
 
-* When you want to drop an interactive element into the ebook, you provide the name of the pde and the xml file that should be used.  So, ideally, you'd do something like this: 
+This is probably the most difficult part -- we need a simple way to create an embed link so that the author can put something like this in the AsciiDoc:
 
-interactive::flash_card/js_assets/cards.pde [ config="assets/state_capitols.xml"]
+----
+embed::flash_card/js_assets/cards.pde [ config="state_capitals.xml"]
+----
 
-* This would get translated into the javascript required to pull in the element with the right name.  (I've got an example.)  But, basically, it just drops everything into place to set it all up.
+This would need to be converted inside our transformation script into javascript that has the following elements:
+
+
+
