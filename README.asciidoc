@@ -1,0 +1,24 @@
+* Interactive elements are processing sketches that can run as processing.js.  (The new beta of processing even let's you create these out of the box in the interface.  It's pretty slick.)  The sketch *must* have a standard method that loads an XML file that defines the elements various elements.  For example, if you had flashcards, you might have something like this:
+
+<flashcards>
+   <card>
+      <q>What is the capitol of Massachussetts</q>
+      <a>Boston</a>
+   </card>
+   <card>
+      <q>What is the capitol of New York</q>
+      <a>Albany</a>
+   </card>
+</flashcards>
+
+The sketch is designed to "play" each of the XML files.
+
+* Each interactive sketch is pulled into an Atlas repo as a submodule.  If you want to use it, you have to do some git magic to link it in.  (Maybe this could be a picklist feature in the interface, even).
+
+* You create the XML config files inside the Atlas Interface.  These are just assets that you can upload or attach.
+
+* When you want to drop an interactive element into the ebook, you provide the name of the pde and the xml file that should be used.  So, ideally, you'd do something like this: 
+
+interactive::flash_card/js_assets/cards.pde [ config="assets/state_capitols.xml"]
+
+* This would get translated into the javascript required to pull in the element with the right name.  (I've got an example.)  But, basically, it just drops everything into place to set it all up.
