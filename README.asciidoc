@@ -24,16 +24,21 @@ https://github.com/MakerPress/flashcards
 To run the app:
 
 ----
-$ git@github.com:MakerPress/flashcards.git
+$ git clone git@github.com:MakerPress/flashcards.git
 $ cd flashcards
 $ python -m SimpleHTTPServer
 ----
 
 The last command will start a simple HTTP server on port 8000.  Then, open your browser and go to http://localhost:8000/
 
-You can click around through the cards, see the answers, and so forth.
+Click the "Draw" button to load the cards.  You can click around through the cards, see the answers, and so forth.
 
 Here's more info on each element.
+
+[NOTE]
+====
+I relied on this article called [[ Processing on the Web | http://processingjs.nihongoresources.com/processing%20on%20the%20web/ ]] for a lot of this.  It's a bit outdated, but a great intro to the issues involved in passing data back and forth from a Javasctipt page to a processing.js sketch.  Highly recommended reading.
+====
 
 
 == The Player
@@ -44,6 +49,7 @@ The player is a Processing sketch that uses the new "Export to processing.js" mo
 * There is a large community of people with Processing expertise
 * Processing.js cleanly converts to HTML5 / Javascript
 * We can use git submodules to pull the player into the author's repo.
+* The player has to have a method called buildFromXML(String xml) that is used to parse the XML media file.  This method is referenced in the page that embeds the element.
 
 The downsides of this approach are:
 
@@ -73,7 +79,34 @@ This is probably the most difficult part -- we need a simple way to create an em
 embed::flash_card/js_assets/cards.pde [ config="state_capitals.xml"]
 ----
 
-This would need to be converted inside our transformation script into javascript that has the following elements:
+This would need to be converted inside our transformation script into javascript.  There are a few elements that are required:
 
+* The jQuery and processing.js libraries have to be added.  This just needs to be done once.
+* A special JavaScrip function called loadXML needs to be added.  This function links the media file to the player file.  This just needs to be done once.
+* The actual embed link is in a canvas with a named div.  TThis needs to be done each for each media file that you embed; note that each div needs it's own unique id. 
 
+Here's a full example that is stored in the file "index.html" in the repo:
+
+----
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>My Processing Page</title>
+		<script type="text/javascript" src="http://code.jquery.com/jquery-1.6.2.min.js"></script>
+		<script type="text/javascript" src="applet_js/processing.js"></script>
+		<script type="text/javascript">
+		function loadXML(id, fn) {
+				var pjs = Processing.getInstanceById(id);
+				var xml = $.ajax({url: fn, async: false }).responseText;
+				pjs.buildFromXML(xml); 
+        }
+		</script>
+	</head>
+	<body>
+		<canvas id="1234" data-processing-sources="applet_js/flashcards.pde"/></canvas>
+		<div id="controller"><button id="loadXML" onclick="loadXML('1234', 'state_capitals.xml')"/>Draw!</div>
+	</body>
+</html>
+----
 
