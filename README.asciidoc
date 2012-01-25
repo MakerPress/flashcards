@@ -1,14 +1,14 @@
-This document is a start at describing how to incorporate interactive elements in EPUB3 at scale.  There are 3 major components in any system like this:
+This document describes how to incorporate interactive elements in EPUB3 at scale.  There are 3 major components in any system like this:
 
 * *A player*.  A player is any software program that can accept an input file and then render it.  For example, a flashcard player might accept an XML input file and then provide the functionality to move back and forth through the cards, display the answers, give hints, etc.
 * *A data file*.  The data file is represents the data to be played a player. So, in a flash card system, the data file is an XML file.  In an audio file, it's an MP3 played on a quicktime plugin.
 * *An embed link*.  A syntax for embedding a player with a specific media file into a document.   For example, making an embed link on YouTube connects the player to the video you want to watch.
 
-We need to figure out how to replicate this in Atlas and for EPUBs in general.  Specifically, we need to develop a process for:
+We want to make a simple process for Atlas authors to:
 
-* Creating new players (flashcards, code magnets, multiple-choice quizzes, etc)   
-* Creating data files in a simple fashion inside Atlas.  We can either type them in directly, or link out to nice "healper" applications that have a GUI for generating the text.
-* Create a simple linking system that will link the the two.  Basically, this means having a custom AsciiDoc link that will be transformed into the appropriate HTML / Javascript that can be embedded into the EPUB.
+* Use various players (flashcards, code magnets, multiple-choice quizzes, etc) written in processing.js, or even write their own custom players themselves 
+* Create data files in the Atlas interface.  They can either type them in directly, or use a "helper" application that has a nice GUI that generates data files they can paste into Atlas.
+* Create a simple linking system that will put the interactive element into the document.
 
 This document describes a proof of concept for a flashcard player written in processing.js.  The basic idea is simple:
 
@@ -74,7 +74,7 @@ Inside Atlas, the author can simply upload the file as an attachment, or edit it
 
 == Embed Link
 
-Finally, we need a dimple way to embed links to the content inside a document.  To do this, we can use a passthrough to a DocBook Processing Instruction (PI) that will pull in the proper code.  To make things simple, we'll just pass the DocBooc passthrough in AsciiDoc.  So, the required markup is something like this:
+Finally, we need a simple way to embed links to the content inside a document.  To do this, we can use a passthrough to a DocBook Processing Instruction (PI) that will pull in the proper code.  To make things simple, we'll just pass the DocBooc passthrough in AsciiDoc.  So, the required markup is something like this:
 
 So, now we have something like this:
 
