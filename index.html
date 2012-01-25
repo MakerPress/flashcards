@@ -14,7 +14,10 @@
 		</script>
 	</head>
 	<body>
-		<canvas id="1234" data-processing-sources="applet_js/flashcards.pde"/></canvas>
+		<canvas id="1234" data-processing-sources="applet_js/flashcards.pde" oncanplay="loadXML('1234', 'state_capitals.xml')"/></canvas>
+
+
+
 		<div id="controller"><button id="loadXML" onclick="loadXML('1234', 'state_capitals.xml')"/>Draw!</div>
 	</body>
 </html>

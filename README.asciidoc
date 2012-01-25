@@ -1,13 +1,13 @@
 This document is a start at describing how to incorporate interactive elements in EPUB3 at scale.  There are 3 major components in any system like this:
 
 * *A player*.  A player is any software program that can accept an input file and then render it.  For example, a flashcard player might accept an XML input file and then provide the functionality to move back and forth through the cards, display the answers, give hints, etc.
-* *A media file*.  A media file is data encoded into a format that can be played on a player. So, in a flash card system, the media file is an XML file.  In an audio file, it's an MP3 played on a quicktime plugin.
+* *A data file*.  The data file is represents the data to be played a player. So, in a flash card system, the data file is an XML file.  In an audio file, it's an MP3 played on a quicktime plugin.
 * *An embed link*.  A syntax for embedding a player with a specific media file into a document.   For example, making an embed link on YouTube connects the player to the video you want to watch.
 
 We need to figure out how to replicate this in Atlas and for EPUBs in general.  Specifically, we need to develop a process for:
 
 * Creating new players (flashcards, code magnets, multiple-choice quizzes, etc)   
-* Creating media files in a simple fashion inside Atlas.
+* Creating data files in a simple fashion inside Atlas.  We can either type them in directly, or link out to nice "healper" applications that have a GUI for generating the text.
 * Create a simple linking system that will link the the two.  Basically, this means having a custom AsciiDoc link that will be transformed into the appropriate HTML / Javascript that can be embedded into the EPUB.
 
 This document describes a proof of concept for a flashcard player written in processing.js.  The basic idea is simple:
@@ -37,7 +37,7 @@ Here's more info on each element.
 
 [NOTE]
 ====
-I relied on this article called [ Processing on the Web | http://processingjs.nihongoresources.com/processing%20on%20the%20web/ ] for a lot of this.  It's a bit outdated, but a great intro to the issues involved in passing data back and forth from a Javasctipt page to a processing.js sketch.  Highly recommended reading.
+I relied on this article called http://processingjs.nihongoresources.com/processing%20on%20the%20web/[Processing on the Web] for a lot of this.  It's a bit outdated, but a great intro to the issues involved in passing data back and forth from a Javasctipt page to a processing.js sketch.  Highly recommended reading.
 ====
 
 
@@ -55,10 +55,11 @@ The downsides of this approach are:
 
 * There are some subtle differences b/t a full Processing sketch and processing.js.  It can be really hard to debug.
 * Processing 2.0 is still in beta, but it works.
+* Not sure how the touch libraries will work with processing. Need some experimentation here.
 
-== The Media File
+== The Data File
 
-The media file for the flashcard sketch is an XML document that looks like this (this file is called state_capitals.xml):
+The data file for the flashcard sketch is an XML document that looks like this (this file is called state_capitals.xml):
 
 ----
 <flashcards>
@@ -73,19 +74,20 @@ Inside Atlas, the author can simply upload the file as an attachment, or edit it
 
 == Embed Link
 
-This is probably the most difficult part -- we need a simple way to create an embed link so that the author can put something like this in the AsciiDoc:
+Finally, we need a dimple way to embed links to the content inside a document.  To do this, we can use a passthrough to a DocBook Processing Instruction (PI) that will pull in the proper code.  To make things simple, we'll just pass the DocBooc passthrough in AsciiDoc.  So, the required markup is something like this:
+
+So, now we have something like this:
 
 ----
-embed::flash_card/js_assets/cards.pde [ config="state_capitals.xml"]
+++++
+<?dbhtml-insertfile player="flash_card/js_assets/cards.pde" data="state_capitals.xml"?>
+++++
 ----
 
-This would need to be converted inside our transformation script into javascript.  There are a few elements that are required:
 
-* The jQuery and processing.js libraries have to be added.  This just needs to be done once.
-* A special JavaScrip function called loadXML needs to be added.  This function links the media file to the player file.  This just needs to be done once.
-* The actual embed link is in a canvas with a named div.  TThis needs to be done each for each media file that you embed; note that each div needs it's own unique id. 
+== Required Javascript
 
-Here's a full example that is stored in the file "index.html" in the repo:
+The embed link needs to be translated into JavaScript that can be inserted into the EPUB.  The following example shows a working example:
 
 ----
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -109,4 +111,12 @@ Here's a full example that is stored in the file "index.html" in the repo:
 	</body>
 </html>
 ----
+ 
+There elements of note include:
 
+* The jQuery and processing.js libraries have to be added.  This just needs to be done once.
+* A  JavaScript function called loadXML needs to be added.  This function links the media file to the player file.  This just needs to be done once.
+* A canvas with a unique ID that runs the processing sketch.  The data-processing-sources attribute is supplied by the "player" attribute in the embed link.
+* A button to start the player.  It's onClick attribute executes the "loadXML" function with the canvas ID and the data file supplied in the embed link.
+
+The one piece I'd like to do is figure out how to have the canvas load the data file automatically, rather than the user having to press the button.  There is probably a sneaky javascript way to do this.  
